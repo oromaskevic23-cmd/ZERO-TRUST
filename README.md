@@ -43,3 +43,7 @@ Workload attestation, certificate rotation, live revocation, transport identity 
 Public source visibility is not a license grant. See [LICENSE](LICENSE).
 
 **Architecture Before Implementation. Evidence Before Trust.**
+
+## Security hardening v0.2
+
+[Implementation](src/revocation.mjs) · [Tests](test/revocation.test.mjs) · [Evidence and limitations](docs/HARDENING_V0_2.md).
