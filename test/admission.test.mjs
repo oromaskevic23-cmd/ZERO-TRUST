@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {generateKeyPairSync,sign} from 'node:crypto';
+import {passportBytes} from '../src/index.mjs';
+import {revocationBytes} from '../src/revocation.mjs';
+import {admitIdentity} from '../src/admission.mjs';
+const i=generateKeyPairSync('ed25519'),r=generateKeyPairSync('ed25519');
+const expected={sub:'agent',org:'demo',aud:'worker',cap:'read'};
+const signed=(payload,bytes,key)=>({payload,signature:sign(null,bytes(payload),key.privateKey).toString('hex')});
+const passport=signed({v:1,kid:'i',...expected,iat:100,exp:200},passportBytes,i);
+const snapshot=revoked=>signed({v:1,org:'demo',epoch:2,iat:100,exp:150,revoked},revocationBytes,r);
+const trust={identityKeys:new Map([['i',i.publicKey]]),revocationKey:r.publicKey,minimumEpoch:2};
+test('both signatures required',()=>{assert.equal(admitIdentity(passport,snapshot([]),trust,expected,120).sub,'agent');assert.equal(admitIdentity(passport,null,trust,expected,120),null);});
+test('revoked and rollback denied',()=>{assert.equal(admitIdentity(passport,snapshot(['agent']),trust,expected,120),null);assert.equal(admitIdentity(passport,snapshot([]),{...trust,minimumEpoch:3},expected,120),null);});
+test('scope substitution denied',()=>assert.equal(admitIdentity(passport,snapshot([]),trust,{...expected,cap:'write'},120),null));
