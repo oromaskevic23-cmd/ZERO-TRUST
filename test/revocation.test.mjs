@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {generateKeyPairSync,sign} from 'node:crypto';
+import {revocationBytes,checkRevocation} from '../src/revocation.mjs';
+const k=generateKeyPairSync('ed25519');
+const p={v:1,org:'demo',epoch:3,iat:100,exp:150,revoked:['bad']};
+const env={payload:p,signature:sign(null,revocationBytes(p),k.privateKey).toString('hex')};
+const check=(e=env,sub='ok',epoch=3,now=120,org='demo',key=k.publicKey)=>checkRevocation(e,key,org,sub,epoch,now);
+test('valid fresh snapshot',()=>assert.equal(check(),true));
+test('revoked subject',()=>assert.equal(check(env,'bad'),false));
+test('rollback epoch',()=>assert.equal(check(env,'ok',4),false));
+test('expired snapshot',()=>assert.equal(check(env,'ok',3,150),false));
+test('tenant binding',()=>assert.equal(check(env,'ok',3,120,'other'),false));
+test('tamper revoked list',()=>assert.equal(check({...env,payload:{...p,revoked:[]}},'bad'),false));
+test('wrong authority',()=>assert.equal(check(env,'ok',3,120,'demo',generateKeyPairSync('ed25519').publicKey),false));
