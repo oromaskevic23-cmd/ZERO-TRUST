@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {generateKeyPairSync,sign} from 'node:crypto';
+import {passportBytes,verifyIdentity} from '../src/index.mjs';
+const {publicKey,privateKey}=generateKeyPairSync('ed25519');
+const p={v:1,kid:'lab',sub:'nca',org:'demo',aud:'service',cap:'read',iat:100,exp:200};
+const env={payload:p,signature:sign(null,passportBytes(p),privateKey).toString('hex')};
+const keys=new Map([['lab',publicKey]]);
+const expected={sub:'nca',org:'demo',aud:'service',cap:'read'};
+test('valid signed identity',()=>assert.equal(verifyIdentity(env,keys,expected,150),true));
+test('expiry',()=>assert.equal(verifyIdentity(env,keys,expected,200),false));
+test('cross tenant',()=>assert.equal(verifyIdentity(env,keys,{...expected,org:'other'},150),false));
+test('tamper',()=>assert.equal(verifyIdentity({...env,payload:{...p,exp:201}},keys,expected,150),false));
+test('unknown key',()=>assert.equal(verifyIdentity(env,new Map(),expected,150),false));
+test('missing expected context',()=>assert.equal(verifyIdentity(env,keys,{},150),false));
