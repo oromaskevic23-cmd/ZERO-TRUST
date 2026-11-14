@@ -47,3 +47,9 @@ Public source visibility is not a license grant. See [LICENSE](LICENSE).
 ## Security hardening v0.2
 
 [Implementation](src/revocation.mjs) · [Tests](test/revocation.test.mjs) · [Evidence and limitations](docs/HARDENING_V0_2.md).
+
+## Security composition v0.3
+
+Combined passport and signed revocation admission. Expected scope, pinned keys and monotonic epoch floor must come from a trusted host; no live issuer or revocation service is deployed.
+
+[Implementation](src/admission.mjs) · [Tests](test/admission.test.mjs) · [Scope and evidence](docs/COMPOSITION_V0_3.md).
