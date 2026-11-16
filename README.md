@@ -12,13 +12,13 @@ Verifies a signed, short-lived laboratory AI Passport against an explicitly trus
 
 ## Quick start
 
-Node.js 22+; no external dependencies or paid services.
+Node.js 22.13+; no external dependencies or paid services. The local run in this iteration used Node.js 24.22.1.
 
 ```sh
 npm test
 ```
 
-API: `verifyIdentity(envelope, trustedKeys, expected, now)`.
+Use `RevocationFloor.admit(...)` for the local signed identity and revocation reference. The lower-level `verifyIdentity(...)` checks identity only and does not establish authority.
 
 - [Architecture and release gates](ARCHITECTURE.md)
 - [Threat model](THREAT_MODEL.md)
@@ -43,6 +43,12 @@ Workload attestation, certificate rotation, live revocation, transport identity 
 Public source visibility is not a license grant. See [LICENSE](LICENSE).
 
 **Architecture Before Implementation. Evidence Before Trust.**
+
+## Local rollback protection
+
+[RevocationFloor](src/revocation-floor.mjs) verifies signed revocation snapshots and persists the latest accepted epoch and content per organization. Stale snapshots, authority substitution and changed revocation contents at the same epoch fail closed. A verified identity is still not permission to execute an action. Key rotation, live issuer integration and resource-side authorization are not implemented.
+
+SQLite files are created with owner-only POSIX permissions; existing files with broader permissions and symlinks are rejected on POSIX. Use a trusted directory and protect the database against replacement. Windows ACL enforcement is not implemented or tested. Replacing the database can erase the stored floor.
 
 ## Security hardening v0.2
 

@@ -20,4 +20,12 @@ Reproduction: place sibling checkouts at these exact source revisions (AUDIT-LED
 - APPROVAL-GATEWAY: `1fde4606f48ede3d1db73ed194658664d55cb746`
 - AUDIT-LEDGER: `0381a21d0db0a903d3a3ff343852fe2cbdaa9e08`
 
-No CI run, independent reviewer, deployment, real Owner credential enrollment, durable storage, production execution or external security audit is claimed. No paid services used.
+No CI run, independent reviewer, deployment, real Owner credential enrollment, durable storage, production execution or external security audit was claimed for that historical run. No paid services were used.
+
+## Local security iteration — 2026-11-16
+
+Developer-run on Node.js v24.22.1, Linux/POSIX: `node --test --test-reporter=tap test/*.test.mjs` — 26/26 passed, zero failed or skipped. [Raw local TAP](LOCAL_TEST_2026-11-16.tap).
+
+An additional 11/11 integration tests ran locally with four sibling repository directories, synthetic data and temporary Ed25519 keys. [Cross-component test and local TAP](https://github.com/oromaskevic23-cmd/AUDIT-LEDGER/tree/main/evidence). These tests exercise a local reference; they do not establish independent QA, authenticated owner enrollment, distributed enforcement or production readiness.
+
+Node.js 22 runtime compatibility, Windows ACL enforcement, CI, external penetration testing and production deployment: **NOT RUN**. SQLite files require a trusted directory and protection against replacement; signatures and floor records do not defend against a privileged host attacker.
